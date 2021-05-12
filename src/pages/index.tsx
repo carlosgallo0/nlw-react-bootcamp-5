@@ -2,23 +2,56 @@ import { GetStaticProps} from "next"; //tipar por completo: tanto os parametros 
 import {format, parseISO} from "date-fns";
 import {ptBR} from "date-fns/locale/pt-BR";
 import {api} from '../services/api';
+import { convertDurationToTimeString } from "../utils/convertDurationToTimeString";
+
+import styles from './home.module.scss';
+
 type Episode ={
   id: string;
   title: string;
+  thumbnail:string;
   members: string;
   published_at: string;
+  duration:number;
+  durationAsString: string;
+  url: string;
+  
   //...
 }
 type HomeProps = {
-   episodes: Episode[];
+  latestEpisodes: Episode[];
+  allEpisodes: Episode[];
 }
 
-export default function Home(props: HomeProps){
+export default function Home({latestEpisodes, allEpisodes}: HomeProps){
   return (
-    <>
-    <h1>Index</h1>
-    <p>{JSON.stringify(props.episodes)}</p>
-    </>
+    <div className={styles.homepage}>
+      <section className={styles.latestEpisodes}>
+        <h2>Ultimos Lançamentos</h2>
+        <ul>
+          {latestEpisodes.map(episode =>{
+            return(
+              <li key={episode.id}>
+                <img src={episode.thumbnail} alt={episode.title}/>
+                <div className={styles.episodeDetails}>
+                  <a href="">{episode.title}</a>
+                  <p>{episode.members}</p>
+                  <span>{episode.publishedAt}</span>
+                  <span>{episode.durationAdString}</span>
+                </div>
+                <button type='button'>
+                  <img src="/play-green.svg" alt="Tocar episódio  " />
+                </button>
+              </li>
+            )
+
+          })}
+        </ul>
+
+
+      </section>
+
+    </div>
   )
 }
 
@@ -39,18 +72,19 @@ export const getStaticProps: GetStaticProps = async () => {
       members: episode.members,
       publishedAt: format(parseISO(episode.published_at),'d MMM yy', {locale: ptBR}),//usar o camel case no front para diferenciar da chamada API
       duration: Number(episode.file.duration),
+      durationAsString: convertDurationToTimeString(Number(episode.file.duration)),
       description:episode.description,
-      url:episode.file.url,
-
-
-    
+      url:episode.file.url    
     }
 
   })
 
+  const latestEpisodes = episodes.slice(0,2);
+  const allEpisodes = episodes.slice(2, episodes.lenght);
 return {
     props: {
-      episodes: data,      
+      latestEpisodes,
+      allEpisodes,      
     },
     revalidate: 60 * 60 * 8 //requisição será feita a cada 8 horas 
   }
