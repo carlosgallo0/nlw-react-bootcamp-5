@@ -1,8 +1,10 @@
 import { GetStaticProps} from "next"; //tipar por completo: tanto os parametros quanto os retornos dela
+import Image from 'next/image';
 import {format, parseISO} from "date-fns";
 import {ptBR} from "date-fns/locale/pt-BR";
 import {api} from '../services/api';
 import { convertDurationToTimeString } from "../utils/convertDurationToTimeString";
+
 
 import styles from './home.module.scss';
 
@@ -11,7 +13,7 @@ type Episode ={
   title: string;
   thumbnail:string;
   members: string;
-  published_at: string;
+  publishedAt: string;
   duration:number;
   durationAsString: string;
   url: string;
@@ -32,12 +34,19 @@ export default function Home({latestEpisodes, allEpisodes}: HomeProps){
           {latestEpisodes.map(episode =>{
             return(
               <li key={episode.id}>
-                <img src={episode.thumbnail} alt={episode.title}/>
+                <Image 
+                  width={192} 
+                  height={192} 
+                  src={episode.thumbnail} 
+                  alt={episode.title} 
+                  objectFit='cover'
+                />
+
                 <div className={styles.episodeDetails}>
                   <a href="">{episode.title}</a>
                   <p>{episode.members}</p>
                   <span>{episode.publishedAt}</span>
-                  <span>{episode.durationAdString}</span>
+                  <span>{episode.durationAsString}</span>
                 </div>
                 <button type='button'>
                   <img src="/play-green.svg" alt="Tocar episódio  " />
@@ -47,7 +56,8 @@ export default function Home({latestEpisodes, allEpisodes}: HomeProps){
 
           })}
         </ul>
-
+      </section>
+      <section className={styles.allEpisodes}>
 
       </section>
 
